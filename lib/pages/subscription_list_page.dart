@@ -7,7 +7,6 @@ import 'package:fluent_reader_lite/generated/l10n.dart';
 import 'package:fluent_reader_lite/models/source.dart';
 import 'package:fluent_reader_lite/models/sources_model.dart';
 import 'package:fluent_reader_lite/models/sync_model.dart';
-import 'package:fluent_reader_lite/pages/group_list_page.dart';
 import 'package:fluent_reader_lite/pages/home_page.dart';
 import 'package:fluent_reader_lite/utils/colors.dart';
 import 'package:fluent_reader_lite/utils/global.dart';
@@ -51,49 +50,14 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
     super.initState();
     widget.scrollTopNotifier.addListener(_onScrollTop);
   }
-  
+
   @override
   void dispose() {
     widget.scrollTopNotifier.removeListener(_onScrollTop);
     super.dispose();
   }
 
-  void _openGroups() async {
-    List<String> result;
-    if (Global.isTablet) {
-      result = await Navigator.of(context).push(CupertinoPageRoute(
-        builder: (context) => GroupListPage(),
-      ));
-    } else {
-      setState(() { transitioning = true; });
-      result = await CupertinoScaffold.showCupertinoModalBottomSheet(
-        context: context,
-        useRootNavigator: true,
-        builder: (context) => GroupListPage(),
-      );
-    }
-    if (!mounted) return;
-    if (result != null) {
-      _onScrollTop();
-      if (result.length == 0) {
-        setState(() {
-          title = null;
-          sids = null;
-        });
-      } else if (result.length > 1) {
-        setState(() {
-          title = S.of(context).uncategorized;
-          sids = Global.groupsModel.uncategorized;
-        });
-      } else {
-        setState(() {
-          title = result[0];
-          sids = Global.groupsModel.groups[title];
-        });
-      }
-    }
-    await Future.delayed(Duration(milliseconds: 300));
-    setState(() { transitioning = false; });
+  void _openGroups() {
   }
 
   void _openMarkAllModal() {
@@ -183,7 +147,7 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
                 : MediaQuery.of(context).size.width - 60,
             ),
             child: Text(
-              title ?? S.of(context).subscriptions, 
+              title ?? S.of(context).subscriptions,
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -228,7 +192,7 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
               onPressed: _openSettings,
             ),
           ],
-        ), 
+        ),
       )
     );
     final sourcesList = Consumer<SourcesModel>(
@@ -306,7 +270,7 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
               title: Text(S.of(context).allArticles),
               trailing: count > 0 ? Badge(count) : null,
               trailingChevron: false,
-              onTap: () async { 
+              onTap: () async {
                 await Global.feedsModel.initSourcesFeed(sids.toList());
                 Navigator.of(context).pushNamed("/feed", arguments: title);
               },
@@ -319,5 +283,5 @@ class _SubscriptionListPageState extends State<SubscriptionListPage> {
       ]
     ));
   }
-  
+
 }

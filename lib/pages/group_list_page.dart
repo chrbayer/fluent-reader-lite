@@ -8,17 +8,44 @@ import 'package:fluent_reader_lite/models/source.dart';
 import 'package:fluent_reader_lite/models/sources_model.dart';
 import 'package:fluent_reader_lite/utils/global.dart';
 import 'package:fluent_reader_lite/utils/utils.dart';
+import 'package:fluent_reader_lite/pages/home_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class GroupListPage extends StatefulWidget {
+  final ScrollTopNotifier scrollTopNotifier;
+
+  GroupListPage(this.scrollTopNotifier, {Key key}) : super(key: key);
+
   @override
   _GroupListPageState createState() => _GroupListPageState();
 }
 
 class _GroupListPageState extends State<GroupListPage> {
   static const List<String> _uncategorizedIndicator = [null, null];
+
+  void _onScrollTop() {
+    if (widget.scrollTopNotifier.index == 1 && !Navigator.of(context).canPop()) {
+      PrimaryScrollController.of(context).animateTo(
+        0,
+        curve: Curves.easeOut,
+        duration: const Duration(milliseconds: 300),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    widget.scrollTopNotifier.addListener(_onScrollTop);
+  }
+
+  @override
+  void dispose() {
+    widget.scrollTopNotifier.removeListener(_onScrollTop);
+    super.dispose();
+  }
 
   int _unreadCount(Iterable<RSSSource> sources) {
     return sources.fold(0, (c, s) => c + (s != null ? s.unreadCount : 0));
@@ -78,7 +105,7 @@ class _GroupListPageState extends State<GroupListPage> {
             final tile = MyListTile(
               title: Flexible(child: Text(groupName, overflow: TextOverflow.ellipsis)),
               trailing: count > 0 ? Badge(count) : null,
-              onTap: () { 
+              onTap: () {
                 Navigator.of(context).pop(
                   isUncategorized ? _uncategorizedIndicator : [groupName]
                 );

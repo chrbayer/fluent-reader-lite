@@ -5,6 +5,7 @@ import 'package:fluent_reader_lite/main.dart';
 import 'package:fluent_reader_lite/models/services/service_import.dart';
 import 'package:fluent_reader_lite/models/sync_model.dart';
 import 'package:fluent_reader_lite/pages/setup_page.dart';
+import 'package:fluent_reader_lite/pages/group_list_page.dart';
 import 'package:fluent_reader_lite/pages/subscription_list_page.dart';
 import 'package:fluent_reader_lite/pages/tablet_base_page.dart';
 import 'package:fluent_reader_lite/utils/global.dart';
@@ -25,12 +26,12 @@ class HomePage extends StatefulWidget {
 
 class ScrollTopNotifier with ChangeNotifier {
   int index = 0;
-  
+
   void onTap(int newIndex) {
     var oldIndex = index;
     index = newIndex;
     if (newIndex == oldIndex) notifyListeners();
-  } 
+  }
 }
 
 class _HomePageState extends State<HomePage> {
@@ -46,7 +47,7 @@ class _HomePageState extends State<HomePage> {
     if (uri.host == "import") {
       if (Global.syncModel.hasService) {
         showCupertinoDialog(
-          context: context, 
+          context: context,
           builder: (context) => CupertinoAlertDialog(
             title: Text(S.of(context).serviceExists),
             actions: [
@@ -116,6 +117,10 @@ class _HomePageState extends State<HomePage> {
             label: S.of(context).feed,
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.group),
+            label: S.of(context).groups,
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.list),
             label: S.of(context).subscriptions,
           ),
@@ -133,7 +138,7 @@ class _HomePageState extends State<HomePage> {
           builder: (context) {
             Widget page = index == 0
               ? ItemListPage(_scrollTopNotifier)
-              : SubscriptionListPage(_scrollTopNotifier);
+              : index == 1 ? GroupListPage(_scrollTopNotifier) : SubscriptionListPage(_scrollTopNotifier);
             return _constructPage(page, isMobile);
           },
         );
